@@ -11,7 +11,10 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
+var databaseRef = database.ref();
+
 var playersRef = database.ref("players");
+var turnRef = database.ref("turn");
 
 var connectedRef = database.ref(".info/connected");
 
@@ -64,9 +67,25 @@ playersRef.on("value", function (snap) {
 
     if(!playerOneReady){
         $("#playerOneName").text("Waiting for Player 1");
+        turnRef.remove();
     }
     if(!playerTwoReady){
         $("#playerTwoName").text("Waiting for Player 2");
+        turnRef.remove();
+    }
+    if(playerOneReady && playerTwoReady){
+        databaseRef.update({
+            turn: 1
+        });
+    }
+});
+
+turnRef.on("value", function (snap) {
+    if(snap.val() === 1){
+        console.log("beep");
+        if(playerNumber === "1"){
+            $("#playerOneName").text("Rock Papers Scissors");
+        }
     }
 });
   /*
