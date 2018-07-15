@@ -14,6 +14,14 @@ var database = firebase.database();
 var databaseRef = database.ref();
 
 var playersRef = database.ref("players");
+var playerOneRef = database.ref("players/1");
+var playerTwoRef = database.ref("players/2");
+var playerOneMoveRef = database.ref("players/1/move");
+var playerTwoMoveRef = database.ref("players/2/move");
+
+var playerOneMove;
+var playerTwoMove;
+
 var turnRef = database.ref("turn");
 
 var connectedRef = database.ref(".info/connected");
@@ -21,6 +29,10 @@ var connectedRef = database.ref(".info/connected");
 var playerOneReady = false;
 var playerTwoReady = false;
 var playerNumber;
+
+var gameBtns = "<div><button class='rpsBtns' data-move='r'>ROCK</button></div><div><button class='rpsBtns' data-move='p'>PAPER</button></div><div><button class='rpsBtns' data-move='s'>SCISSORS</button></div>";
+var $playerOneBtns = $("#playerOneBtns");
+var $playerTwoBtns = $("#playerTwoBtns");
 
 $("#nameForm").on("submit", function (e) {
     e.preventDefault();
@@ -49,43 +61,112 @@ function addPlayer(playerNum, name) {
     ref.onDisconnect().remove();
 }
 
-playersRef.on("value", function (snap) {
-    playerOneReady = false;
-    playerTwoReady = false;
+playersRef.on("child_added", function (snap) {
+    //playerOneReady = false;
+    //playerTwoReady = false;
 
-    snap.forEach(function (childSnap) {
-        var key = childSnap.key;
-        if (key === "1") {
-            playerOneReady = true;
-            $("#playerOneName").text(childSnap.child("name").val());
-        }
-        else if (key === "2") {
-            playerTwoReady = true;
-            $("#playerTwoName").text(childSnap.child("name").val());
-        }
-    });
+    //playersRef.forEach(function (childSnap) {
+    var key = snap.key;
+    if (key === "1") {
+        playerOneReady = true;
+        $("#playerOneName").text(snap.child("name").val());
+    }
+    else if (key === "2") {
+        playerTwoReady = true;
+        $("#playerTwoName").text(snap.child("name").val());
+    }
+    //});
 
-    if(!playerOneReady){
-        $("#playerOneName").text("Waiting for Player 1");
-        turnRef.remove();
-    }
-    if(!playerTwoReady){
-        $("#playerTwoName").text("Waiting for Player 2");
-        turnRef.remove();
-    }
-    if(playerOneReady && playerTwoReady){
+    checkIfReady();
+    if (playerOneReady && playerTwoReady) {
         databaseRef.update({
             turn: 1
         });
     }
 });
 
+playersRef.on("child_removed", function (snap) {
+    var key = snap.key;
+    if (key === "1") {
+        playerOneReady = false;
+        $("#playerOneName").text(snap.child("name").val());
+    }
+    else if (key === "2") {
+        playerTwoReady = false;
+        $("#playerTwoName").text(snap.child("name").val());
+    }
+
+    checkIfReady();
+});
+
+function checkIfReady() {
+    if (!playerOneReady) {
+        $("#playerOneName").text("Waiting for Player 1");
+        $playerTwoBtns.empty();
+        turnRef.remove();
+    }
+    if (!playerTwoReady) {
+        $("#playerTwoName").text("Waiting for Player 2");
+        $playerOneBtns.empty();
+        turnRef.remove();
+    }
+}
+
+playerOneMoveRef.on("value", function (snap) {
+    playerOneMove = snap.val();
+});
+
+playerTwoMoveRef.on("value", function (snap) {
+    playerTwoMove = snap.val();
+});
+
 turnRef.on("value", function (snap) {
-    if(snap.val() === 1){
-        console.log("beep");
-        if(playerNumber === "1"){
-            $("#playerOneName").text("Rock Papers Scissors");
+    if (snap.val() === 1) {
+        if (playerNumber === "1") {
+            $playerOneBtns.html(gameBtns);
         }
+        else if (playerNumber === "2") {
+            $playerTwoBtns.text("Waiting for Player 1");
+        }
+    }
+    else if (snap.val() === 2) {
+        if (playerNumber === "1") {
+            $playerOneBtns.text("Waiting for Player 2");
+        }
+        else if (playerNumber === "2") {
+            $playerTwoBtns.html(gameBtns);
+        }
+    }
+    else if(snap.val()===3){
+        $playerOneBtns.empty();
+        $playerTwoBtns.empty();
+        //console.log(firebase.database().ref().val().child('players/1/move'));
+        //checkMoves();
+    }
+});
+
+//function checkMoves(player1, player2){
+
+//}
+
+$(document).on("click", ".rpsBtns", function () {
+    var val = $(this).attr("data-move");
+
+    if (playerNumber === "1") {
+        playerOneRef.update({
+            move: val
+        });
+        databaseRef.update({
+            turn: 2
+        });
+    }
+    else if (playerNumber === "2") {
+        playerTwoRef.update({
+            move: val
+        });
+        databaseRef.update({
+            turn: 3
+        });
     }
 });
   /*
