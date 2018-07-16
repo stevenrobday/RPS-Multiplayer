@@ -1,14 +1,54 @@
 body{
     width: 100vw;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+body > div{
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
 }
 
 #formArea{
     height: 10%;
 }
 
+#playContainer{
+    height: 25%;
+}
+
 .playArea{
     width: 25%;
-    height: 25%;
+    height: auto;
     border: 5px solid #000000;
+}
+ 
+#messagingContainer{
+    display: none;
+    height: 25%;
+}
+
+#messagingForm{
+    width: 70%;
+}
+
+
+#messagingWindow{
+    width: 70%;
+    height: 80%;
+    border: 5px solid #000000;
+    overflow: auto;
+}
+
+
+#messagingInput{
+    height: 30%;
+    width: 65%;
+}
+
+#tauntBtn{
+    width: auto;
 }

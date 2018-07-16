@@ -32,8 +32,11 @@ var losses = 0;
 var playerOneReady = false;
 var playerTwoReady = false;
 var playerNumber;
+var playerOneName;
+var playerTwoName;
 
 var turnRef = database.ref("turn");
+var messagesRef = database.ref("messages");
 
 //var connectedRef = database.ref(".info/connected");
 
@@ -47,6 +50,9 @@ var $playerOneWins = $("#playerOneWins");
 var $playerOneLosses = $("#playerOneLosses");
 var $playerTwoWins = $("#playerTwoWins");
 var $playerTwoLosses = $("#playerTwoLosses");
+var $messagingContainer = $("#messagingContainer");
+var $messagingWindow = $("#messagingWindow");
+var $messagingInput = $("#messagingInput");
 
 $("#nameForm").on("submit", function (e) {
     e.preventDefault();
@@ -80,21 +86,25 @@ function addPlayer(playerNum, name) {
 playersRef.on("child_added", function (snap) {
     //playerOneReady = false;
     //playerTwoReady = false;
-
+    var name = snap.child("name").val();
     //playersRef.forEach(function (childSnap) {
     var key = snap.key;
     if (key === "1") {
         playerOneReady = true;
-        $("#playerOneName").text(snap.child("name").val());
+        playerOneName = name;
+        $("#playerOneName").text(name);
     }
     else if (key === "2") {
         playerTwoReady = true;
-        $("#playerTwoName").text(snap.child("name").val());
+        playerTwoName = name;
+        $("#playerTwoName").text(name);
     }
     //});
 
     checkIfReady();
     if (playerOneReady && playerTwoReady) {
+        messagesRef.remove();
+        $messagingContainer.show();
         databaseRef.update({
             turn: 1
         });
@@ -106,6 +116,9 @@ playersRef.on("child_removed", function (snap) {
 
     clearInterval(intervalID);
     $results.empty();
+
+    messagesRef.remove();
+    $messagingContainer.hide();
 
     if (key === "1") {
         playerOneReady = false;
@@ -141,29 +154,29 @@ playerTwoMoveRef.on("value", function (snap) {
 });
 
 turnRef.on("value", function (snap) {
-    switch (snap.val()){
+    switch (snap.val()) {
         case 1:
             clearInterval(intervalID);
             $results.empty();
 
-            switch (playerNumber){
+            switch (playerNumber) {
                 case "1":
                     $playerOneBtns.html(gameBtns);
                     break;
-                case "2": 
+                case "2":
                     $playerTwoBtns.text("Waiting for Player 1");
                     break;
-            }          
+            }
             break;
         case 2:
-            switch (playerNumber){
+            switch (playerNumber) {
                 case "1":
                     $playerOneBtns.text("Waiting for Player 2");
                     break;
                 case "2":
                     $playerTwoBtns.html(gameBtns);
                     break;
-                }
+            }
             break;
         case 3:
             $playerOneBtns.empty();
@@ -180,10 +193,10 @@ function checkMoves() {
     if (playerOneMove === playerTwoMove) {
         $results.text("TIE GAME!");
     }
-    else{
-        switch (playerOneMove){
+    else {
+        switch (playerOneMove) {
             case "r":
-                switch(playerTwoMove){
+                switch (playerTwoMove) {
                     case "s":
                         playerOneWins = true;
                         break;
@@ -193,7 +206,7 @@ function checkMoves() {
                 }
                 break;
             case "p":
-                switch(playerTwoMove){
+                switch (playerTwoMove) {
                     case "r":
                         playerOneWins = true;
                         break;
@@ -203,7 +216,7 @@ function checkMoves() {
                 }
                 break;
             case "s":
-                switch(playerTwoMove){
+                switch (playerTwoMove) {
                     case "p":
                         playerOneWins = true;
                         break;
@@ -217,27 +230,27 @@ function checkMoves() {
 
     if (playerOneWins) {
         $results.text("Player One Wins!");
-        switch (playerNumber){
+        switch (playerNumber) {
             case "1":
                 wins++;
-                playerOneRef.update({wins: wins});
+                playerOneRef.update({ wins: wins });
                 break;
             case "2":
                 losses++;
-                playerTwoRef.update({losses: losses});
+                playerTwoRef.update({ losses: losses });
                 break;
         }
     }
     else if (playerTwoWins) {
         $results.text("Player Two Wins!");
-        switch (playerNumber){
+        switch (playerNumber) {
             case "1":
                 losses++;
-                playerOneRef.update({losses: losses});
+                playerOneRef.update({ losses: losses });
                 break;
             case "2":
                 wins++;
-                playerTwoRef.update({wins: wins});
+                playerTwoRef.update({ wins: wins });
                 break;
         }
     }
@@ -249,30 +262,30 @@ function checkMoves() {
     }, 3000);
 }
 
-playerOneWinsRef.on("value", function(snap){
+playerOneWinsRef.on("value", function (snap) {
     var val = snap.val();
-    if(val !== null){
+    if (val !== null) {
         $playerOneWins.text(val);
     }
 });
 
-playerOneLossesRef.on("value", function(snap){
+playerOneLossesRef.on("value", function (snap) {
     var val = snap.val();
-    if(val !== null){
+    if (val !== null) {
         $playerOneLosses.text(val);
     }
 });
 
-playerTwoWinsRef.on("value", function(snap){
+playerTwoWinsRef.on("value", function (snap) {
     var val = snap.val();
-    if(val !== null){
+    if (val !== null) {
         $playerTwoWins.text(val);
     }
 });
 
-playerTwoLossesRef.on("value", function(snap){
+playerTwoLossesRef.on("value", function (snap) {
     var val = snap.val();
-    if(val !== null){
+    if (val !== null) {
         $playerTwoLosses.text(val);
     }
 });
@@ -296,6 +309,37 @@ $(document).on("click", ".rpsBtns", function () {
             turn: 3
         });
     }
+});
+
+$("#messagingForm").on("submit", function (e) {
+    e.preventDefault();
+    var message = $messagingInput.val().trim();
+    if (message === "") {
+        return;
+    }
+
+    $messagingInput.val("");
+    var messageObj = {
+        playerNumber: playerNumber,
+        message: message
+    };
+    messagesRef.push(messageObj);
+});
+
+messagesRef.on("child_added", function (snap) {
+    var playerNum = snap.child("playerNumber").val();
+    var message = snap.child("message").val();
+    var playerName;
+
+    if(playerNum === "1"){
+        playerName = playerOneName;
+    }
+    else if(playerNum === "2"){
+        playerName = playerTwoName;
+    }
+    
+    $messagingWindow.append("<p>" + playerName + ": " + message + "</p>");
+    $messagingWindow.scrollTop($messagingWindow[0].scrollHeight);
 });
   /*
   connectedRef.on("value", function(snap) {

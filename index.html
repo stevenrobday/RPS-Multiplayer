@@ -11,39 +11,55 @@
 </head>
 
 <body>
-    <div id="formArea">
-        <form id="nameForm">
-            <input id="nameInput" placeholder="enter name">
-            <button>PLAY</button>
+    <div id="formArea" class="container">
+        <div>
+            <form id="nameForm">
+                <input id="nameInput" placeholder="enter name">
+                <button>PLAY</button>
+            </form>
+        </div>
+    </div>
+    <div id="playContainer" class="container">
+        <div class="playArea" id="playerOneDiv">
+            <div id="playerOneName">
+                Waiting for Player 1
+            </div>
+            <div id="playerOneBtns"></div>
+            <div id="playerOneScore">
+                Wins:
+                <span id="playerOneWins">0</span>
+                Losses:
+                <span id="playerOneLosses">0</span>
+            </div>
+        </div>
+
+        <div class="playArea">
+            <div id="results">
+            </div>
+        </div>
+        <div class="playArea" id="playerTwoDiv">
+            <div id="playerTwoName">
+                Waiting for Player 2
+            </div>
+            <div id="playerTwoBtns"></div>
+            <div id="playerTwoScore">
+                Wins:
+                <span id="playerTwoWins">0</span>
+                Losses:
+                <span id="playerTwoLosses">0</span>
+            </div>
+        </div>
+    </div>
+    <div id="messagingContainer" class="container">
+
+        <form id="messagingForm">
+            <div id="messagingWindow"></div>
+            <div id="messagingField">
+                <input id="messagingInput" autocomplete="off">
+                <button id="tauntBtn">TAUNT</button>
+            </div>
         </form>
-    </div>
-    <div class="playArea" id="playerOneDiv">
-        <div id="playerOneName">
-            Waiting for Player 1
-        </div>
-        <div id="playerOneBtns"></div>
-        <div id="playerOneScore">
-            Wins:
-            <span id="playerOneWins">0</span>
-            Losses:
-            <span id="playerOneLosses">0</span>
-        </div>
-    </div>
-    <div class="playArea">
-        <div id="results">
-        </div>
-    </div>
-    <div class="playArea" id="playerTwoDiv">
-        <div id="playerTwoName">
-            Waiting for Player 2
-        </div>
-        <div id="playerTwoBtns"></div>
-        <div id="playerTwoScore">
-            Wins:
-            <span id="playerTwoWins">0</span>
-            Losses:
-            <span id="playerTwoLosses">0</span>
-        </div>
+
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="assets/js/app.js"></script>
