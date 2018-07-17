@@ -1,15 +1,29 @@
+/* http://www.fontspace.com/westral-fonts/nintender */
+
+@font-face {
+    font-family: 'nintender';
+    src: url('../font/nintender.ttf') format('truetype');
+}
+
 body{
+    font-family: 'nintender';
+    color: #ffffff;
+    letter-spacing: 1px;
+    font-size: 24px;
     width: 100vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    position: relative;
+    background-color: #000000;
 }
 
-body > div{
+#formArea, #playContainer, #messagingContainer{
     margin: 20px;
     display: flex;
     flex-direction: row;
+    justify-content: space-evenly;
 }
 
 #formArea{
@@ -17,17 +31,40 @@ body > div{
 }
 
 #playContainer{
-    height: 25%;
+    height: 30%;
+    text-align: center;
 }
 
 .playArea{
     width: 25%;
     height: auto;
-    border: 5px solid #000000;
+    border: 5px solid #ffffff;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.score{
+    margin-top: auto;
+}
+
+#playerOneAvatar, #playerTwoAvatar{
+    margin-top: auto;
+    height: 70%;
+    display: none;
+}
+
+#playerOneAvatar img, #playerTwoAvatar img{
+    height: 100%;
+    width: auto;
+}
+
+#results{
+    margin: auto;
 }
  
 #messagingContainer{
-    display: none;
+    display: flex;
     height: 25%;
 }
 
@@ -37,18 +74,64 @@ body > div{
 
 
 #messagingWindow{
-    width: 70%;
+    width: 100%;
     height: 80%;
-    border: 5px solid #000000;
+    border: 5px solid #ffffff;
     overflow: auto;
 }
 
 
 #messagingInput{
-    height: 30%;
-    width: 65%;
+    width: 80%;
 }
 
 #tauntBtn{
     width: auto;
+}
+
+input, button{
+    font-family: 'nintender';
+    letter-spacing: 1px;
+    font-size: 24px; 
+}
+
+button{
+    border: 5px solid #ffffff;
+    border-radius: 25px;
+    color: #ffffff;
+    background-color: #000000;
+    cursor: pointer;
+}
+
+#shade{
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-color: #9292ff;
+    opacity: .6;
+    display: none;
+}
+
+#avatars{
+    top: 0; bottom: 0; left: 0; right: 0;
+    margin: auto;
+    position: absolute;
+    background-color: #2038ec;
+    width: 50%;
+    height: 50%;
+    text-align: center;
+    justify-content: space-evenly;
+    display: flex;
+    flex-direction: column;
+    display: none;
+}
+
+#images{
+    margin: auto;
+}
+
+.avatarImg{
+    margin: .5vw;
+    width: 6vw;
+    height: auto;
+    cursor: pointer;
 }

@@ -37,6 +37,7 @@ var playerTwoName;
 
 var turnRef = database.ref("turn");
 var messagesRef = database.ref("messages");
+var avatarsRef = database.ref("avatars");
 
 //var connectedRef = database.ref(".info/connected");
 
@@ -54,15 +55,28 @@ var $messagingContainer = $("#messagingContainer");
 var $messagingWindow = $("#messagingWindow");
 var $messagingInput = $("#messagingInput");
 
+var images = ["littleMac", "docLouis", "glassJoe", "vonKaiser", "pistonHonda", "donFlamenco", "kingHippo", "greatTiger", "baldBull", "sodaPop", "sandman", "machoMan", "mikeTyson"];
+var $images = $("#images");
+
+images.forEach(function (el) {
+    $images.append("<img data-img='" + el + "' class='avatarImg' src='assets/images/" + el + ".png'>");
+});
+
+$messagingContainer.hide();
+
 $("#nameForm").on("submit", function (e) {
     e.preventDefault();
     var name = $("#nameInput").val();
     $("#nameInput").val("");
     if (!playerOneReady) {
         addPlayer("1", name);
+        $("#playerOneAvatar").html("<button class='choose'>SELECT YOUR FIGHTER</button>");
+        $("#playerOneAvatar").show();
     }
     else if (!playerTwoReady) {
         addPlayer("2", name);
+        $("#playerTwoAvatar").html("<button class='choose'>SELECT YOUR FIGHTER</button>");
+        $("#playerTwoAvatar").show();
     }
 });
 
@@ -122,11 +136,13 @@ playersRef.on("child_removed", function (snap) {
 
     if (key === "1") {
         playerOneReady = false;
-        $("#playerOneName").text(snap.child("name").val());
+        $("#playerOneName").text(snap.child("name").val() + " IS CHICKEN");
+        $("#playerOneAvatar").hide();
     }
     else if (key === "2") {
         playerTwoReady = false;
-        $("#playerTwoName").text(snap.child("name").val());
+        $("#playerTwoName").text(snap.child("name").val() + " IS CHICKEN");
+        $("#playerTwoAvatar").hide();
     }
 
     checkIfReady();
@@ -134,14 +150,16 @@ playersRef.on("child_removed", function (snap) {
 
 function checkIfReady() {
     if (!playerOneReady) {
-        $("#playerOneName").text("Waiting for Player 1");
+        $results.text("Waiting for Player 1");
         $playerTwoBtns.empty();
         turnRef.remove();
+        database.ref("avatars/1").remove();
     }
     if (!playerTwoReady) {
-        $("#playerTwoName").text("Waiting for Player 2");
+        $results.text("Waiting for Player 2");
         $playerOneBtns.empty();
         turnRef.remove();
+        database.ref("avatars/2").remove();
     }
 }
 
@@ -161,20 +179,20 @@ turnRef.on("value", function (snap) {
 
             switch (playerNumber) {
                 case "1":
-                    $playerOneBtns.html(gameBtns);
+                    $results.html(gameBtns);
                     break;
                 case "2":
-                    $playerTwoBtns.text("Waiting for Player 1");
+                    $results.text("Waiting for " + playerOneName);
                     break;
             }
             break;
         case 2:
             switch (playerNumber) {
                 case "1":
-                    $playerOneBtns.text("Waiting for Player 2");
+                    $results.text("Waiting for " + playerTwoName);
                     break;
                 case "2":
-                    $playerTwoBtns.html(gameBtns);
+                    $results.html(gameBtns);
                     break;
             }
             break;
@@ -229,7 +247,7 @@ function checkMoves() {
     }
 
     if (playerOneWins) {
-        $results.text("Player One Wins!");
+        $results.text(playerOneName + " TKOs " + playerTwoName + "!");
         switch (playerNumber) {
             case "1":
                 wins++;
@@ -242,7 +260,7 @@ function checkMoves() {
         }
     }
     else if (playerTwoWins) {
-        $results.text("Player Two Wins!");
+        $results.text(playerTwoName + " TKOs " + playerOneName + "!");
         switch (playerNumber) {
             case "1":
                 losses++;
@@ -331,15 +349,49 @@ messagesRef.on("child_added", function (snap) {
     var message = snap.child("message").val();
     var playerName;
 
-    if(playerNum === "1"){
+    if (playerNum === "1") {
         playerName = playerOneName;
     }
-    else if(playerNum === "2"){
+    else if (playerNum === "2") {
         playerName = playerTwoName;
     }
-    
+
     $messagingWindow.append("<p>" + playerName + ": " + message + "</p>");
     $messagingWindow.scrollTop($messagingWindow[0].scrollHeight);
+});
+
+$(".avatarImg").on("click", function () {
+    $("#shade").hide();
+    $("#avatars").hide();
+    var img = $(this).attr("data-img");
+    var imgObj = {
+        [playerNumber]: {
+            img: img
+        }
+    };
+
+    avatarsRef.update(imgObj);
+});
+
+avatarsRef.on("child_added", function (snap) {
+    var img = snap.child("img").val();
+    var key = snap.key;
+
+    //console.log(playerNum);
+
+    if (key === "1") {
+        $("#playerOneAvatar").html("<img src='assets/images/" + img + ".png'>")
+        $("#playerOneAvatar").show();
+    }
+    else if (key === "2") {
+        $("#playerTwoAvatar").html("<img src='assets/images/" + img + ".png'>")
+        $("#playerTwoAvatar").show();
+    }
+});
+
+$(document).on("click", ".choose", function () {
+    $("#shade").show();
+    $("#avatars").show();
 });
   /*
   connectedRef.on("value", function(snap) {
